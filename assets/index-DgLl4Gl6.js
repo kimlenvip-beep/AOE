@@ -308,7 +308,7 @@ ${L}`)}k&&(r+=b+`
                     ${b}
                     <div class="pdf-page-body">
                         <table class="pdf-items-table">
-                             {//* [MODIFIED] Updated Table Header *//}
+                             {/* [MODIFIED] Updated Table Header */}
                             <thead><tr><th style="width:5%;">ลำดับ</th><th style="width:45%;">รายการ</th><th style="width:10%;">จำนวน</th><th style="width:17.5%;">ราคา/หน่วย</th><th style="width:17.5%;">รวม (บาท)</th></tr></thead>
                             <tbody>${x}</tbody>
                             ${L}
