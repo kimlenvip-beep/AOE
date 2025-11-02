@@ -23,8 +23,8 @@
     </noscript>
 
 
-  <script type="module" crossorigin src="./assets/index-CXeeyzPl.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-Bw-t57xI.css">
+  <script type="module" crossorigin src="./assets/index-BqYYgEWI.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-mMt_UdHA.css">
 </head>
 <body>
 
@@ -36,7 +36,7 @@
 
     <header class="main-header">
         <div class="header-title-group">
-            <h1><i class="ph ph-github-logo"></i> Marnthara</h1>
+            <h1><i class=""></i> Marnthara</h1>
         </div>
         <div class="header-actions">
             <button id="undoBtn" class="header-btn unlockable" title="Undo" aria-label="Undo last action" disabled>
@@ -53,6 +53,8 @@
                     <a href="#" id="visualReportsBtn" role="menuitem"><i class="ph ph-browsers"></i> รายงานภาพ</a>
                     <a href="#" id="exportPdfBtn" role="menuitem"><i class="ph ph-file-pdf"></i> ใบเสนอราคา (PDF)</a>
                     <a href="#" id="submitBtn" role="menuitem"><i class="ph ph-paper-plane-tilt"></i> ส่งข้อมูล</a>
+                    <hr>
+                    <a href="#" data-act="open-force-apply-modal" class="danger" role="menuitem"><i class="ph ph-warning-circle"></i> บังคับใช้ค่า (ทุกห้อง)</a>
                     <hr>
                     <a href="#" id="themeToggleBtn" role="menuitem"><i class="ph ph-moon"></i> <span>สลับธีม</span></a>
                     <hr>
@@ -105,6 +107,7 @@
 
             <input type="hidden" id="discount_type" name="discount_type" value="amount">
             <input type="hidden" id="discount_value" name="discount_value" value="0">
+			<input type="hidden" id="vat_enabled" name="vat_enabled" value="0"> </form>
         </form>
     </main>
 
@@ -160,11 +163,11 @@
                 <div class="dimension-input-row">
                     <div class="form-group">
                         <label class="visually-hidden">กว้าง (ม.)</label>
-                        <input type="number" inputmode="numeric" name="modal_width_m" placeholder="กว้าง">
+                        <input type="number" step="0.01" inputmode="decimal" name="modal_width_m" placeholder="กว้าง">
                     </div>
                     <div class="form-group">
                         <label class="visually-hidden">สูง (ม.)</label>
-                        <input type="number" inputmode="numeric" name="modal_height_m" placeholder="สูง">
+                        <input type="number" step="0.01" inputmode="decimal" name="modal_height_m" placeholder="สูง">
                     </div>
                     <button type="button" class="btn-icon btn-icon-small danger btn-remove-dimension-row" data-act="remove-dimension-row" title="ลบขนาด" aria-label="ลบขนาดแถวนี้"><i class="ph-bold ph-x"></i></button>
                 </div>
@@ -190,27 +193,52 @@
 
     <div id="discountModal" class="modal-wrapper">
         <div class="modal-content" style="max-width: 400px;">
-            <h3><i class="ph-fill ph-tag"></i> ส่วนลด</h3>
+            <h3><i class="ph-fill ph-tag"></i> ส่วนลด & ภาษี</h3>
             <div id="discountBody" class="discount-modal-body">
                 <div class="discount-row">
                     <span class="discount-label">ยอดรวม</span>
                     <span id="discountSubtotal" class="discount-value">0</span>
                 </div>
+				
+                 <div class="discount-row toggle-row">
+                <span class="discount-label">เปิดใช้งานส่วนลด</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="discountToggle" class="toggle-switch-input">
+                    <span class="toggle-switch-track">
+                        <span class="toggle-switch-knob"></span>
+                    </span>
+                </label>
+                </div>
+				
+                <div class="discount-inputs-group" id="discountInputsGroup">
                 <div class="discount-row input-row">
                     <span class="discount-label">ส่วนลด (%)</span>
-                    <label for="discountPercent" class="visually-hidden">ส่วนลดเป็นเปอร์เซ็นต์</label>
                     <input type="number" id="discountPercent" inputmode="decimal" class="discount-input">
                 </div>
                 <div class="discount-row input-row">
                     <span class="discount-label">ส่วนลด (บาท)</span>
-                    <label for="discountAmount" class="visually-hidden">ส่วนลดเป็นบาท</label>
                     <input type="text" id="discountAmount" inputmode="decimal" class="discount-input">
+                </div>
                 </div>
                 <hr>
                  <div class="discount-row final-total-row">
                     <span class="discount-label">คงเหลือ</span>
                     <span id="discountFinalTotal" class="discount-value discount-final">0</span>
                 </div>
+            <div class="discount-row toggle-row" id="discountVatToggleRow">
+                <span class="discount-label" style="color: var(--success); font-weight: 500;">+ VAT 7%</span>
+                <label class="toggle-switch is-success">
+                    <input type="checkbox" id="vatToggle" class="toggle-switch-input">
+                    <span class="toggle-switch-track">
+                        <span class="toggle-switch-knob"></span>
+                    </span>
+                </label>
+            </div>
+
+                        <div class="discount-row final-total-row hidden" id="discountVatResultRow">
+                <span class="discount-label" style="color: var(--success); font-weight: 500;">ยอดรวม (+VAT)</span>
+                <span id="discountFinalTotalWithVat" class="discount-value" style="color: var(--success); font-size: 1.1rem; font-weight: 700;">0</span>
+            </div>
             </div>
             <div class="modal-actions">
                 <button id="discountCancel" class="btn btn-secondary">ยกเลิก</button>
@@ -488,7 +516,7 @@
                     <input type="radio" name="item_type_option" value="set" checked>
                     <span class="radio-card-content">
                         <strong><i class="ph-fill ph-rows"></i> ผ้าม่าน</strong>
-                        <small>Curtain, Sheer, Louis</small> </span>
+                        <small>Curtain, Sheer</small> </span>
                 </label>
                 <label data-item-type="wallpaper">
                     <input type="radio" name="item_type_option" value="wallpaper">
@@ -541,10 +569,11 @@
                 </label>
             </div>
             <div class="modal-actions">
-                <button id="itemTypeModalCancel" class="btn btn-secondary">ยกเลิก</button>
-                <button id="itemTypeModalConfirm" class="btn btn-primary">ยืนยัน</button>
-            </div>
-        </div>
+                 <button type="button" id="itemTypeModalMultiAdd" class="btn btn-secondary">+หลายรายการ</button>
+                 <button id="itemTypeModalCancel" class="btn btn-secondary">ยกเลิก</button>
+                 <button id="itemTypeModalConfirm" class="btn btn-primary">ยืนยัน</button>
+             </div>
+         </div>
     </div>
 
     <div id="hardwareModal" class="modal-wrapper">
@@ -649,248 +678,233 @@
     </div>
 </div>
 
-    <div id="roomDefaultsModal" class="modal-wrapper">
+<div id="roomControlCenterModal" class="modal-wrapper room-control-center-modal">
         <div class="modal-content room-defaults-modal-content">
             <div class="room-defaults-header">
-                <h3><i class="ph-fill ph-sliders"></i> ตั้งค่าเริ่มต้นสำหรับห้อง</h3>
-                <button type="button" class="btn btn-secondary btn-compact" data-act="open-force-apply-modal" title="บังคับใช้ค่ากับทุกรายการ"><i class="ph ph-warning-circle"></i> บังคับ</button>
+                <h3><i class="ph-fill ph-gear-six"></i> ศูนย์ควบคุมห้อง</h3>
                 <button class="btn-icon close-defaults-modal" data-act="close-modal" aria-label="ปิด"><i class="ph ph-x"></i></button>
             </div>
 
-            <div class="defaults-nav">
-                <button type="button" class="defaults-tab is-active" data-target="set">ผ้าม่าน</button>
-                <button type="button" class="defaults-tab" data-target="wallpaper">วอลล์</button>
-                <button type="button" class="defaults-tab" data-target="wooden_blind">ไม้</button>
-                <button type="button" class="defaults-tab" data-target="roller_blind">ม้วน</button>
-                <button type="button" class="defaults-tab" data-target="vertical_blind">ปรับแสง</button>
-                <button type="button" class="defaults-tab" data-target="partition">ฉาก</button>
-                <button type="button" class="defaults-tab" data-target="pleated_screen">มุ้งจีบ</button>
-                <button type="button" class="defaults-tab" data-target="aluminum_blind">อลูฯ</button>
+            <div class="modal-tabs rcc-tabs">
+                <button class="tab-link active" data-tab="general-settings">ตั้งค่าทั่วไป</button>
+                <button class="tab-link" data-tab="batch-editor">แก้ไขแบบกลุ่ม</button>
             </div>
 
-            <div class="defaults-content-container">
-                <form id="roomDefaultsForm">
-                    <div class="defaults-content is-active" data-type="set">
-                        <div class="defaults-enable-toggle">
-                            <label>
-                                <input type="checkbox" name="enable_defaults_set" value="1">
-                                <span>เปิดใช้งานค่าเริ่มต้นสำหรับผ้าม่าน</span>
-                            </label>
-                        </div>
-                        <div class="defaults-inputs-grid">
-                            <div class="form-group-with-favorites">
-                                <div class="form-group">
-                                    <label>ผ้าทึบ (รหัส)
-                                        <input type="text" name="defaults_fabric_code" placeholder="-" disabled data-favorite-type="fabric">
-                                    </label>
-                                    <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด" aria-label="เปิดรายการโปรดรหัสผ้าทึบ"><i class="ph ph-list-numbers"></i></button>
+            <div class="rcc-tab-content-container">
+
+                <div id="general-settings" class="rcc-tab-content active">
+                    <form id="roomDefaultsForm">
+                        <div class="defaults-content is-active" data-type="set">
+                            <div class="defaults-enable-toggle">
+                                <label>
+                                    <input type="checkbox" name="enable_defaults_set">
+                                    ค่าเริ่มต้น 'ผ้าม่าน'
+                                </label>
+                            </div>
+                            <div class="defaults-inputs-grid">
+                                <div class="form-group-with-favorites">
+                                    <div class="form-group">
+                                         <label>รหัสผ้าทึบเริ่มต้น
+                                             <input type="text" name="defaults_fabric_code" data-favorite-type="fabric">
+                                         </label>
+                                         <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด"><i class="ph ph-list-numbers"></i></button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label>ผ้าทึบ (ราคา/ม.)
-                                    <input type="text" inputmode="numeric" name="defaults_fabric_price" placeholder="0" disabled>
-                                </label>
-                            </div>
-                            <div class="form-group-with-favorites">
                                 <div class="form-group">
-                                    <label>ผ้าโปร่ง (รหัส)
-                                        <input type="text" name="defaults_sheer_code" placeholder="-" disabled data-favorite-type="sheer">
-                                    </label>
-                                    <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด" aria-label="เปิดรายการโปรดรหัสผ้าโปร่ง"><i class="ph ph-list-numbers"></i></button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>ผ้าโปร่ง (ราคา/ม.)
-                                    <input type="text" inputmode="numeric" name="defaults_sheer_price" placeholder="0" disabled>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="defaults-content" data-type="wallpaper">
-                         <div class="defaults-enable-toggle">
-                            <label>
-                                <input type="checkbox" name="enable_defaults_wallpaper" value="1">
-                                <span>เปิดใช้งานค่าเริ่มต้นสำหรับวอลล์เปเปอร์</span>
-                            </label>
-                        </div>
-                        <div class="defaults-inputs-grid">
-                            <div class="form-group-with-favorites">
-                                <div class="form-group">
-                                    <label>รหัส
-                                        <input type="text" name="defaults_wallpaper_code" placeholder="-" disabled data-favorite-type="wallpaper">
-                                    </label>
-                                    <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด" aria-label="เปิดรายการโปรดรหัสวอลล์เปเปอร์"><i class="ph ph-list-numbers"></i></button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>ราคา/ม้วน
-                                    <input type="text" inputmode="numeric" name="defaults_wallpaper_price_roll" placeholder="0" disabled>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label>ค่าช่าง/ม้วน
-                                    <input type="text" inputmode="numeric" name="defaults_wallpaper_install_cost" placeholder="300" disabled>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                     <div class="defaults-content" data-type="wooden_blind">
-                         <div class="defaults-enable-toggle">
-                            <label>
-                                <input type="checkbox" name="enable_defaults_wooden_blind" value="1">
-                                <span>เปิดใช้งานค่าเริ่มต้นสำหรับมู่ลี่ไม้</span>
-                            </label>
-                        </div>
-                        <div class="defaults-inputs-grid">
-                           <div class="form-group-with-favorites">
-                               <div class="form-group">
-                                   <label>รหัส
-                                       <input type="text" name="defaults_wooden_blind_code" placeholder="-" disabled data-favorite-type="wooden_blind">
-                                   </label>
-                                   <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด" aria-label="เปิดรายการโปรดมู่ลี่ไม้"><i class="ph ph-list-numbers"></i></button>
-                               </div>
-                           </div>
-                            <div class="form-group">
-                                <label>ราคา/ตร.หลา
-                                    <input type="text" inputmode="numeric" name="defaults_wooden_blind_price_sqyd" placeholder="0" disabled>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="defaults-content" data-type="roller_blind">
-                         <div class="defaults-enable-toggle">
-                            <label>
-                                <input type="checkbox" name="enable_defaults_roller_blind" value="1">
-                                <span>เปิดใช้งานค่าเริ่มต้นสำหรับม่านม้วน</span>
-                            </label>
-                        </div>
-                        <div class="defaults-inputs-grid">
-                            <div class="form-group-with-favorites">
-                                <div class="form-group">
-                                    <label>รหัส
-                                        <input type="text" name="defaults_roller_blind_code" placeholder="-" disabled data-favorite-type="roller_blind">
-                                    </label>
-                                    <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด" aria-label="เปิดรายการโปรดม่านม้วน"><i class="ph ph-list-numbers"></i></button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>ราคา/ตร.หลา
-                                    <input type="text" inputmode="numeric" name="defaults_roller_blind_price_sqyd" placeholder="0" disabled>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                     <div class="defaults-content" data-type="vertical_blind">
-                         <div class="defaults-enable-toggle">
-                            <label>
-                                <input type="checkbox" name="enable_defaults_vertical_blind" value="1">
-                                <span>เปิดใช้งานค่าเริ่มต้นสำหรับม่านปรับแสง</span>
-                            </label>
-                        </div>
-                        <div class="defaults-inputs-grid">
-                           <div class="form-group-with-favorites">
-                               <div class="form-group">
-                                   <label>รหัส
-                                       <input type="text" name="defaults_vertical_blind_code" placeholder="-" disabled data-favorite-type="vertical_blind">
-                                   </label>
-                                   <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด" aria-label="เปิดรายการโปรดม่านปรับแสง"><i class="ph ph-list-numbers"></i></button>
-                               </div>
-                           </div>
-                            <div class="form-group">
-                                <label>ราคา/ตร.หลา
-                                    <input type="text" inputmode="numeric" name="defaults_vertical_blind_price_sqyd" placeholder="0" disabled>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="defaults-content" data-type="partition">
-                         <div class="defaults-enable-toggle">
-                            <label>
-                                <input type="checkbox" name="enable_defaults_partition" value="1">
-                                <span>เปิดใช้งานค่าเริ่มต้นสำหรับฉากกั้นห้อง</span>
-                            </label>
-                        </div>
-                        <div class="defaults-inputs-grid">
-                             <div class="form-group-with-favorites">
-                                 <div class="form-group">
-                                     <label>รหัส
-                                         <input type="text" name="defaults_partition_code" placeholder="-" disabled data-favorite-type="partition">
+                                     <label>ราคาผ้าทึบเริ่มต้น
+                                         <input type="text" inputmode="numeric" name="defaults_fabric_price">
                                      </label>
-                                     <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด" aria-label="เปิดรายการโปรดฉากกั้นห้อง"><i class="ph ph-list-numbers"></i></button>
-                                 </div>
-                             </div>
-                            <div class="form-group">
-                                <label>ราคา/ตร.หลา
-                                    <input type="text" inputmode="numeric" name="defaults_partition_price_sqyd" placeholder="0" disabled>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                     <div class="defaults-content" data-type="pleated_screen">
-                         <div class="defaults-enable-toggle">
-                            <label>
-                                <input type="checkbox" name="enable_defaults_pleated_screen" value="1">
-                                <span>เปิดใช้งานค่าเริ่มต้นสำหรับมุ้งจีบ</span>
-                            </label>
-                        </div>
-                        <div class="defaults-inputs-grid">
-                            <div class="form-group-with-favorites">
+                                </div>
+                                <div class="form-group-with-favorites">
+                                    <div class="form-group">
+                                         <label>รหัสผ้าโปร่งเริ่มต้น
+                                             <input type="text" name="defaults_sheer_code" data-favorite-type="sheer">
+                                         </label>
+                                         <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด"><i class="ph ph-list-numbers"></i></button>
+                                    </div>
+                                </div>
                                 <div class="form-group">
-                                    <label>รหัส
-                                        <input type="text" name="defaults_pleated_screen_code" placeholder="-" disabled data-favorite-type="pleated_screen">
-                                    </label>
-                                    <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด" aria-label="เปิดรายการโปรดมุ้งจีบ"><i class="ph ph-list-numbers"></i></button>
+                                     <label>ราคาผ้าโปร่งเริ่มต้น
+                                         <input type="text" inputmode="numeric" name="defaults_sheer_price">
+                                     </label>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>ราคา/ตร.หลา
-                                    <input type="text" inputmode="numeric" name="defaults_pleated_screen_price_sqyd" placeholder="0" disabled>
-                                </label>
+                        </div>
+                        <div class="defaults-content" data-type="wallpaper">
+                            <div class="defaults-enable-toggle">
+                                 <label>
+                                     <input type="checkbox" name="enable_defaults_wallpaper">
+                                     ค่าเริ่มต้น 'วอลล์เปเปอร์'
+                                 </label>
+                            </div>
+                             <div class="defaults-inputs-grid">
+                                <div class="form-group-with-favorites">
+                                    <div class="form-group">
+                                         <label>รหัสวอลล์เริ่มต้น
+                                             <input type="text" name="defaults_wallpaper_code" data-favorite-type="wallpaper">
+                                         </label>
+                                         <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด"><i class="ph ph-list-numbers"></i></button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                     <label>ราคา/ม้วน เริ่มต้น
+                                         <input type="text" inputmode="numeric" name="defaults_wallpaper_price_roll">
+                                     </label>
+                                </div>
+                                <div class="form-group">
+                                     <label>ค่าติดตั้ง/ม้วน เริ่มต้น
+                                         <input type="text" inputmode="numeric" name="defaults_wallpaper_install_cost" placeholder="300">
+                                     </label>
+                                </div>
+                             </div>
+                        </div>
+                        <div class="defaults-content" data-type="wooden_blind">
+                            <div class="defaults-enable-toggle">
+                                <label><input type="checkbox" name="enable_defaults_wooden_blind"> ค่าเริ่มต้น 'มู่ลี่ไม้'</label>
+                            </div>
+                            <div class="defaults-inputs-grid">
+                                <div class="form-group-with-favorites">
+                                    <div class="form-group"><label>รหัสเริ่มต้น<input type="text" name="defaults_wooden_blind_code" data-favorite-type="wooden_blind"></label><button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด"><i class="ph ph-list-numbers"></i></button></div>
+                                </div>
+                                <div class="form-group"><label>ราคา/ตร.หลา เริ่มต้น<input type="text" inputmode="numeric" name="defaults_wooden_blind_price_sqyd"></label></div>
                             </div>
                         </div>
-                    </div>
+                        <div class="defaults-content" data-type="roller_blind">
+                            <div class="defaults-enable-toggle">
+                                <label><input type="checkbox" name="enable_defaults_roller_blind"> ค่าเริ่มต้น 'ม่านม้วน'</label>
+                            </div>
+                            <div class="defaults-inputs-grid">
+                                <div class="form-group-with-favorites">
+                                    <div class="form-group"><label>รหัสเริ่มต้น<input type="text" name="defaults_roller_blind_code" data-favorite-type="roller_blind"></label><button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด"><i class="ph ph-list-numbers"></i></button></div>
+                                </div>
+                                <div class="form-group"><label>ราคา/ตร.หลา เริ่มต้น<input type="text" inputmode="numeric" name="defaults_roller_blind_price_sqyd"></label></div>
+                            </div>
+                        </div>
+                         <div class="defaults-content" data-type="vertical_blind">
+                            <div class="defaults-enable-toggle">
+                                <label><input type="checkbox" name="enable_defaults_vertical_blind"> ค่าเริ่มต้น 'ม่านปรับแสง'</label>
+                            </div>
+                            <div class="defaults-inputs-grid">
+                                <div class="form-group-with-favorites">
+                                    <div class="form-group"><label>รหัสเริ่มต้น<input type="text" name="defaults_vertical_blind_code" data-favorite-type="vertical_blind"></label><button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด"><i class="ph ph-list-numbers"></i></button></div>
+                                </div>
+                                <div class="form-group"><label>ราคา/ตร.หลา เริ่มต้น<input type="text" inputmode="numeric" name="defaults_vertical_blind_price_sqyd"></label></div>
+                            </div>
+                        </div>
+                         <div class="defaults-content" data-type="partition">
+                            <div class="defaults-enable-toggle">
+                                <label><input type="checkbox" name="enable_defaults_partition"> ค่าเริ่มต้น 'ฉากกั้นห้อง'</label>
+                            </div>
+                            <div class="defaults-inputs-grid">
+                                <div class="form-group-with-favorites">
+                                    <div class="form-group"><label>รหัสเริ่มต้น<input type="text" name="defaults_partition_code" data-favorite-type="partition"></label><button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด"><i class="ph ph-list-numbers"></i></button></div>
+                                </div>
+                                <div class="form-group"><label>ราคา/ตร.หลา เริ่มต้น<input type="text" inputmode="numeric" name="defaults_partition_price_sqyd"></label></div>
+                            </div>
+                        </div>
+                        <div class="defaults-content" data-type="pleated_screen">
+                            <div class="defaults-enable-toggle">
+                                <label><input type="checkbox" name="enable_defaults_pleated_screen"> ค่าเริ่มต้น 'มุ้งจีบ'</label>
+                            </div>
+                            <div class="defaults-inputs-grid">
+                                <div class="form-group-with-favorites">
+                                    <div class="form-group"><label>รหัสเริ่มต้น<input type="text" name="defaults_pleated_screen_code" data-favorite-type="pleated_screen"></label><button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด"><i class="ph ph-list-numbers"></i></button></div>
+                                </div>
+                                <div class="form-group"><label>ราคา/ตร.หลา เริ่มต้น<input type="text" inputmode="numeric" name="defaults_pleated_screen_price_sqyd"></label></div>
+                            </div>
+                        </div>
+                        <div class="defaults-content" data-type="aluminum_blind">
+                            <div class="defaults-enable-toggle">
+                                <label><input type="checkbox" name="enable_defaults_aluminum_blind"> ค่าเริ่มต้น 'มู่ลี่อลูมิเนียม'</label>
+                            </div>
+                            <div class="defaults-inputs-grid">
+                                <div class="form-group-with-favorites">
+                                    <div class="form-group"><label>รหัสเริ่มต้น<input type="text" name="defaults_aluminum_blind_code" data-favorite-type="aluminum_blind"></label><button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด"><i class="ph ph-list-numbers"></i></button></div>
+                                </div>
+                                <div class="form-group"><label>ราคา/ตร.หลา เริ่มต้น<input type="text" inputmode="numeric" name="defaults_aluminum_blind_price_sqyd"></label></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
-                    <div class="defaults-content" data-type="aluminum_blind">
-                         <div class="defaults-enable-toggle">
+                <div id="batch-editor" class="rcc-tab-content">
+                    <h4>แก้ไขอุปกรณ์หลายรายการในห้องนี้</h4>
+                    <p><small>เลือกประเภทอุปกรณ์, เลือกรายการที่ต้องการ, แล้วกำหนดการเปลี่ยนแปลง</small></p>
+
+                    <fieldset class="batch-step">
+                        <legend>1. เลือกเป้าหมาย</legend>
+                        <div class="form-group">
+                            <label for="batch-select-device-type">กรองตามประเภท</label>
+                            <button type="button"
+                                    id="batch-select-device-type"
+                                    class="btn btn-secondary btn-select-type-modal is-placeholder"
+                                    data-target-display="#batch-select-device-type-display"
+                                    data-act="batch-select-type"
+                                    aria-haspopup="dialog">
+                                <span id="batch-select-device-type-display" data-placeholder-text="ทั้งหมด">ทั้งหมด</span>
+                            </button>
+                            <input type="hidden" id="batch-select-device-type-value" name="batch_select_device_type_value" value="">
+                        </div>
+                        
+                        <div class="batch-select-all-container hidden">
                             <label>
-                                <input type="checkbox" name="enable_defaults_aluminum_blind" value="1">
-                                <span>เปิดใช้งานค่าเริ่มต้นสำหรับมู่ลี่อลูมิเนียม</span>
+                                <input type="checkbox" id="batch-select-all-checkbox">
+                                <span class="item-name">
+                                    <strong>เลือกทั้งหมด</strong>
+                                    <small id="batch-item-count">(0 รายการ)</small>
+                                </span>
                             </label>
                         </div>
-                        <div class="defaults-inputs-grid">
-                             <div class="form-group-with-favorites">
-                                 <div class="form-group">
-                                     <label>รหัส
-                                         <input type="text" name="defaults_aluminum_blind_code" placeholder="-" disabled data-favorite-type="aluminum_blind">
-                                     </label>
-                                     <button type="button" class="btn-icon btn-show-favs" data-act="show-favorites" title="เลือกจากรายการโปรด" aria-label="เปิดรายการโปรดมู่ลี่อลูมิเนียม"><i class="ph ph-list-numbers"></i></button>
-                                 </div>
-                             </div>
-                            <div class="form-group">
-                                <label>ราคา/ตร.หลา
-                                    <input type="text" inputmode="numeric" name="defaults_aluminum_blind_price_sqyd" placeholder="0" disabled>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
 
-            <div class="modal-actions room-defaults-actions">
-                 <button id="roomDefaultsApplyBtn" type="button" class="btn btn-secondary btn-compact" data-act="apply-room-defaults"><i class="ph ph-stack"></i> ใช้กับที่ว่าง</button>
-                 <button id="roomDefaultsConfirmBtn" class="btn btn-primary btn-compact"><i class="ph ph-check-circle"></i> บันทึก</button>
-                 <button type="button" class="btn btn-secondary btn-compact" data-act="manage-favorites-from-defaults"><i class="ph ph-gear"></i> จัดการโปรด</button>
-                 <button id="roomDefaultsCancelBtn" class="btn btn-secondary btn-compact">ยกเลิก</button>
+                        <div id="batch-device-list-container">
+                            <p class="placeholder-text">[เลือกประเภทอุปกรณ์เพื่อแสดงรายการ]</p>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="batch-step">
+                        <legend>2. เลือกการกระทำ</legend>
+                        <div class="form-group">
+                            <label for="batch-target-device-type">เปลี่ยนเป็นประเภท</label>
+                            <button type="button"
+                                    id="batch-target-device-type"
+                                    class="btn btn-secondary btn-select-type-modal is-placeholder"
+                                    data-target-display="#batch-target-device-type-display"
+                                    data-act="batch-select-target-type"
+                                    aria-haspopup="dialog">
+                                <span id="batch-target-device-type-display" data-placeholder-text="เลือกประเภทใหม่">เลือกประเภทใหม่</span>
+                            </button>
+                            <input type="hidden" id="batch-target-device-type-value" name="batch_target_device_type_value" value="">
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="batch-step batch-step-details hidden" id="batch-curtain-type-options">
+                        <legend>3. ระบุรายละเอียด (ผ้าม่าน)</legend>
+                        <div class="form-group">
+                            <label for="batch-curtain-type">ประเภทผ้าม่านใหม่</label>
+                            <select id="batch-curtain-type" name="batch-curtain-type">
+                                <option value="ลอน">ลอน</option>
+                                <option value="ตาไก่">ตาไก่</option>
+                                <option value="จีบ">จีบ</option>
+                                <option value="ม่านพับ">ม่านพับ</option>
+                                <option value="ม่านแป๊บ">ม่านแป๊บ</option>
+                                 <option value="หลุยส์">หลุยส์</option> </select>
+                        </div>
+                    </fieldset>
+                    </div>
+
+            </div> 
+            
+
+                 <button id="roomDefaultsConfirmBtn" class="btn btn-primary btn-compact">
+                    <i class="ph ph-check-circle"></i> บันทึกค่าเริ่มต้น
+                 </button>
+
+                 <button id="batchEditorConfirmBtn" class="btn btn-primary btn-compact hidden">
+                    <i class="ph ph-check-circle"></i> ยืนยันการแก้ไขกลุ่ม
+                 </button>
             </div>
-        </div>
+            </div>
     </div>
-
 
     <div id="manageFavsTypeModal" class="modal-wrapper">
         <div class="modal-content" style="max-width: 480px;">
@@ -911,9 +925,8 @@
                 <p><small>เลือกประเภท, กรอกรหัสและราคา เพื่ออัปเดตทุกรายการที่ตรงกันใน ***ทุกห้อง***</small></p>
                 <input type="hidden" name="force_apply_type_hidden" value=""> <div class="force-apply-controls">
                     <div class="form-group full-width-item" style="grid-column: 1 / -1;"> <label>ประเภทรายการ</label>
-                        <button type="button" id="forceApplySelectTypeBtn" class="btn btn-secondary" style="justify-content: space-between;">
-                            <span id="forceApplySelectedTypeDisplay">-- เลือกประเภท --</span>
-                            <i class="ph ph-caret-down"></i>
+                        <button type="button" id="forceApplySelectTypeBtn" class="btn btn-secondary btn-select-type-modal is-placeholder" style="justify-content: space-between;">
+                            <span id="forceApplySelectedTypeDisplay" data-placeholder-text="-- เลือกประเภท --">-- เลือกประเภท --</span>
                         </button>
                     </div>
                     <div class="form-group-with-favorites">
@@ -1012,7 +1025,6 @@
         </div>
     </div>
 
-
     <template id="favManagerItemTpl">
         <div class="fav-manager-item" data-code="{CODE}" data-price="{RAW_PRICE}">
             <span class="fav-manager-code">{CODE}</span>
@@ -1050,7 +1062,7 @@
                             <i class="ph-bold ph-gear-six"></i>
                         </button>
                         <div class="room-options-menu">
-                            <a href="#" data-act="open-room-defaults"><i class="ph ph-sliders"></i> <span>ตั้งค่าเริ่มต้นห้อง</span></a>
+                            <a href="#" data-act="open-room-defaults"><i class="ph ph-sliders"></i> <span>ศูนย์ควบคุมห้อง</span></a>
                             <hr>
                             <a href="#" data-act="toggle-suspend-room"><i class="ph ph-pause-circle"></i> <span>ระงับ/ใช้งานห้องนี้</span></a>
                             <a href="#" data-act="clear-room"><i class="ph ph-eraser"></i> ล้างทุกรายการในห้อง</a>
@@ -1087,12 +1099,12 @@
             <div class="item-grid">
                 <div class="form-group">
                     <label>กว้าง (ม.)
-                        <input type="number" inputmode="numeric" name="width_m" placeholder="0.00">
+                        <input type="number" step="0.01" inputmode="decimal" name="width_m" placeholder="0.00">
                     </label>
                 </div>
                 <div class="form-group">
                     <label>สูง (ม.)
-                        <input type="number" inputmode="numeric" name="height_m" placeholder="0.00">
+                        <input type="number" step="0.01" inputmode="decimal" name="height_m" placeholder="0.00">
                     </label>
                 </div>
                 <div class="form-group">
@@ -1184,7 +1196,7 @@
                 <input type="hidden" name="finial_color" value="ขาว">
                 <input type="hidden" name="grommet_color" value="เงิน">
                 <input type="hidden" name="louis_valance" value="กล่องหลุยส์"> <input type="hidden" name="louis_tassels" value="สีเข้ากับผ้า"> </div>
-             <div class="item-summary single-line" data-set-summary>0</div>
+             <div class="item-summary" data-set-summary>0</div>
         </div>
     </template>
 
@@ -1208,12 +1220,12 @@
             <div class="item-grid">
                 <div class="form-group">
                     <label>กว้าง (ม.)
-                        <input type="number" inputmode="numeric" name="area_width_m" placeholder="0.00">
+                        <input type="number" step="0.01" inputmode="decimal" name="area_width_m" placeholder="0.00">
                     </label>
                 </div>
                  <div class="form-group">
                     <label>สูง (ม.)
-                        <input type="number" inputmode="numeric" name="area_height_m" placeholder="0.00">
+                        <input type="number" step="0.01" inputmode="decimal" name="area_height_m" placeholder="0.00">
                     </label>
                 </div>
                  <div class="form-group full-width-item">
@@ -1277,7 +1289,7 @@
             <div class="item-grid">
                 <div class="form-group">
                     <label>สูง (ม.)
-                        <input type="number" inputmode="numeric" name="wallpaper_height_m" placeholder="0.00">
+                        <input type="number" step="0.01" inputmode="decimal" name="wallpaper_height_m" placeholder="0.00">
                     </label>
                 </div>
                  <div class="form-group full-width-item">
@@ -1323,7 +1335,7 @@
     <template id="wallTpl">
         <div class="wall-input-row">
             <label for="wall_width_m_tpl" class="visually-hidden">ความกว้างผนัง</label>
-            <input id="wall_width_m_tpl" type="number" inputmode="numeric" name="wall_width_m" placeholder="0.00">
+            <input id="wall_width_m_tpl" type="number" step="0.01" inputmode="decimal" name="wall_width_m" placeholder="0.00">
             <button type="button" class="btn-icon btn-icon-small danger" data-act="del-wall" title="ลบผนัง" aria-label="ลบผนัง">
                 <i class="ph-bold ph-x"></i>
             </button>
@@ -1340,7 +1352,7 @@
                  <div class="item-actions">
                     <button type="button" class="btn-icon" data-act="toggle-suspend" title="ระงับ/ใช้งาน" aria-label="ระงับหรือใช้งานรายการนี้"><i class="ph-bold ph-pause-circle"></i></button>
                     <button type="button" class="btn-icon" data-act="duplicate-item" title="คัดลอก" aria-label="คัดลอกรายการนี้"><i class="ph-bold ph-copy"></i></button>
-                    <button type="button" class="btn-icon danger" data-act="del-item" title="ลบ" aria-label="ลบรายการ"><i class="ph-bold ph-x"></i></button>
+                    <button type="button" class="btn btn-icon danger" data-act="del-item" title="ลบ" aria-label="ลบรายการ"><i class="ph-bold ph-x"></i></button>
                 </div>
             </div>
             <div class="placeholder-content">
